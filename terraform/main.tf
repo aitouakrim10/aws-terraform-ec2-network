@@ -4,13 +4,20 @@ terraform {
       source  = "hashicorp/aws"
       version = "~> 6.0"
     }
+    tls = {
+      source  = "hashicorp/tls"
+      version = "~> 4.0"
+    }
+    local = {
+      source  = "hashicorp/local"
+      version = "~> 2.5"
+    }
   }
 }
 
 provider "aws" {
   region = var.region
 }
-
 
 # -------------------------
 # VPC
@@ -51,7 +58,7 @@ resource "aws_subnet" "subnet_2" {
 # -------------------------
 # internet gateway
 # -------------------------
-resource "aws_internet_gateway" "zenon_igw"{
+resource "aws_internet_gateway" "zenon_igw" {
   vpc_id = aws_vpc.zenon_vpc.id
 
   tags = {
@@ -84,10 +91,11 @@ resource "aws_route_table_association" "subnet_2_assoc" {
 # -------------------------
 # Security Group
 # -------------------------
-resource "aws_security_group" "ping" {
-  name   = "ping"
+resource "aws_security_group" "sec_group" {
+  name   = "sec_group"
   vpc_id = aws_vpc.zenon_vpc.id
 
+  ## Allow ICMP traffic from anywhere
   ingress {
     from_port   = -1
     to_port     = -1
@@ -101,6 +109,42 @@ resource "aws_security_group" "ping" {
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
+
+  ## Allow SSH access from anywhere
+  ingress {
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"] # Open to the world
+  }
+}
+
+# --------------------------------------
+# ssh connectivity to the two instances
+# --------------------------------------
+
+# Generate a real SSH private key in OpenSSH-compatible format
+resource "tls_private_key" "nb_keypair" {
+  algorithm = "RSA"
+  rsa_bits  = 4096
+}
+
+# Create the directory where the private key will be stored
+resource "local_file" "private_key" {
+  content         = tls_private_key.nb_keypair.private_key_pem
+  filename        = "${path.root}/keys/nb-key-pair.pem"
+  file_permission = "0600"
+
+  # Ensure the directory exists before writing the file
+  provisioner "local-exec" {
+    command = "mkdir -p ${path.root}/keys"
+  }
+}
+
+# Create an AWS Key Pair using the generated public key
+resource "aws_key_pair" "nb_keypair" {
+  key_name   = "nb-key-pair"
+  public_key = tls_private_key.nb_keypair.public_key_openssh
 }
 
 # -------------------------
@@ -111,9 +155,9 @@ resource "aws_instance" "zenon_vm_1" {
   instance_type               = var.instance_type
   subnet_id                   = aws_subnet.subnet_1.id
   associate_public_ip_address = true
-
+  key_name                    = aws_key_pair.nb_keypair.key_name
   vpc_security_group_ids = [
-    aws_security_group.ping.id
+    aws_security_group.sec_group.id
   ]
 
   tags = {
@@ -129,9 +173,9 @@ resource "aws_instance" "zenon_vm_2" {
   instance_type               = var.instance_type
   subnet_id                   = aws_subnet.subnet_2.id
   associate_public_ip_address = true
-
+  key_name                    = aws_key_pair.nb_keypair.key_name
   vpc_security_group_ids = [
-    aws_security_group.ping.id
+    aws_security_group.sec_group.id
   ]
 
   tags = {
