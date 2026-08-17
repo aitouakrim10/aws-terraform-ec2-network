@@ -46,10 +46,15 @@ Internet Gateway
    ▼
 VPC 10.0.0.0/16
    ├── Subnet 1: 10.0.1.0/24
-   │      └── EC2 instance 1
+   │      └── master
    └── Subnet 2: 10.0.2.0/24
-          └── EC2 instance 2
+          └── nodes
 ```
+
+## Topology
+
+![topology](images/topo.png)
+
 
 ## Terraform resources used
 

@@ -148,9 +148,9 @@ resource "aws_key_pair" "nb_keypair" {
 }
 
 # -------------------------
-# EC2 in subnet 1
+# EC2 in subnet 1 : master
 # -------------------------
-resource "aws_instance" "zenon_vm_1" {
+resource "aws_instance" "master" {
   ami                         = var.ami
   instance_type               = var.instance_type
   subnet_id                   = aws_subnet.subnet_1.id
@@ -161,14 +161,14 @@ resource "aws_instance" "zenon_vm_1" {
   ]
 
   tags = {
-    Name = "zenon-vm-1"
+    Name = "master"
   }
 }
 
 # -------------------------
-# EC2 in subnet 2
+# EC2 in subnet 2 : worker
 # -------------------------
-resource "aws_instance" "zenon_vm_2" {
+resource "aws_instance" "node_1" {
   ami                         = var.ami
   instance_type               = var.instance_type
   subnet_id                   = aws_subnet.subnet_2.id
@@ -179,6 +179,22 @@ resource "aws_instance" "zenon_vm_2" {
   ]
 
   tags = {
-    Name = "zenon-vm-2"
+    Name = "node_1"
+  }
+}
+
+
+resource "aws_instance" "node_2" {
+  ami                         = var.ami
+  instance_type               = var.instance_type
+  subnet_id                   = aws_subnet.subnet_2.id
+  associate_public_ip_address = true
+  key_name                    = aws_key_pair.nb_keypair.key_name
+  vpc_security_group_ids = [
+    aws_security_group.sec_group.id
+  ]
+
+  tags = {
+    Name = "node_2"
   }
 }
