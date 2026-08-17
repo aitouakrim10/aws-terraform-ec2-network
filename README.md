@@ -2,10 +2,11 @@
 
 ![Terraform](https://img.shields.io/badge/Terraform-7B42BC?style=for-the-badge&logo=terraform&logoColor=white)
 ![AWS](https://img.shields.io/badge/AWS-232F3E?style=for-the-badge&logo=amazon-aws&logoColor=white)
+![Ansible](https://img.shields.io/badge/Ansible-EE0000?style=for-the-badge&logo=ansible&logoColor=white)
 ![Linux](https://img.shields.io/badge/Linux-FCC624?style=for-the-badge&logo=linux&logoColor=black)
 ![GitHub](https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white)
 
-This project creates a simple AWS architecture with a VPC, public subnets, a security group, and EC2 instances using Terraform.
+This project creates a simple AWS architecture with a VPC, public subnets, a security group, and EC2 instances using Terraform, with Ansible support for configuration management and provisioning workflows.
 
 ## Project overview
 
@@ -16,21 +17,23 @@ The infrastructure includes:
 - Two public subnets
 - EC2 instances in each subnet
 - Security group allowing ICMP traffic
+- Ansible playbooks for automation and server setup
 - Outputs for the public IP and SG IDs
 
 ## Repository structure
 
 ```text
-aws/
+
 ├── README.md
 ├── images/
-│   ├── arch.png
-│   └── graph.png
-└── terraform/
-    ├── main.tf
-    ├── variables.tf
-    ├── outputs.tf
-    └── terraform.tfstate
+│   ├── ...
+├── terraform/
+│   ├── main.tf
+│   ├── variables.tf
+│   ├── outputs.tf
+│   └── terraform.tfstate
+└── keys/
+    └── ...
 ```
 
 ## Architecture
