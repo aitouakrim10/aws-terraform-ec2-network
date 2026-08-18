@@ -1,0 +1,19 @@
+---
+all:
+  children:
+    masters:
+      hosts:
+        master:
+          ansible_host: "13.49.158.1"
+          ansible_user: "ubuntu"
+          ansible_ssh_private_key_file: "/home/aitouaka/DevOps/projet/aws/keys/nb-key-pair.pem"
+    nodes:
+      hosts:
+        node1:
+          ansible_host: "51.20.132.202"
+          ansible_user: "ubuntu"
+          ansible_ssh_private_key_file: "/home/aitouaka/DevOps/projet/aws/keys/nb-key-pair.pem"
+        node2:
+          ansible_host: "16.170.217.221"
+          ansible_user: "ubuntu"
+          ansible_ssh_private_key_file: "/home/aitouaka/DevOps/projet/aws/keys/nb-key-pair.pem"
