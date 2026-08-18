@@ -132,12 +132,11 @@ resource "tls_private_key" "nb_keypair" {
 # Create the directory where the private key will be stored
 resource "local_file" "private_key" {
   content         = tls_private_key.nb_keypair.private_key_pem
-  filename        = "${path.root}/keys/nb-key-pair.pem"
+  filename        = "${path.root}/../keys/nb-key-pair.pem"
   file_permission = "0600"
-
   # Ensure the directory exists before writing the file
   provisioner "local-exec" {
-    command = "mkdir -p ${path.root}/keys"
+    command = "mkdir -p ${path.root}/../keys"
   }
 }
 
