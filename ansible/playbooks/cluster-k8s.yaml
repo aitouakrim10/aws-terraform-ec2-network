@@ -4,3 +4,9 @@
   become: yes
   roles:
     - common
+
+- name: "Set Up Kubernetes Master Node"
+  hosts: masters
+  become: yes
+  roles:
+    - master
