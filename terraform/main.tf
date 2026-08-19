@@ -162,6 +162,10 @@ resource "aws_instance" "master" {
   tags = {
     Name = "master"
   }
+  user_data = <<-EOF
+    #!/bin/bash
+    hostnamectl set-hostname master
+  EOF
 }
 
 # -------------------------
@@ -180,6 +184,10 @@ resource "aws_instance" "node_1" {
   tags = {
     Name = "node_1"
   }
+  user_data = <<-EOF
+    #!/bin/bash
+    hostnamectl set-hostname worker1
+  EOF
 }
 
 
@@ -196,4 +204,9 @@ resource "aws_instance" "node_2" {
   tags = {
     Name = "node_2"
   }
+
+  user_data = <<-EOF
+    #!/bin/bash
+    hostnamectl set-hostname worker2
+  EOF
 }
