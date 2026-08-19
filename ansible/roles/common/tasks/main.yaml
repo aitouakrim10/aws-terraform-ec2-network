@@ -1,0 +1,148 @@
+---
+- name: "connectivity check"
+  ansible.builtin.ping:
+
+- name: "update and upgrade"
+  ansible.builtin.apt:
+    update_cache: yes
+    upgrade: dist
+
+- name: Disable swap immediately
+  ansible.builtin.command:
+    cmd: swapoff -a
+
+- name: Disable swap permanently
+  ansible.builtin.replace:
+    path: /etc/fstab
+    regexp: '^(\s*[^#]\S*\s+\S+\s+swap\s+.*)$'
+    replace: '# \1'
+
+- name: "add hosts to /etc/hosts"
+  ansible.builtin.lineinfile:
+    path: /etc/hosts
+    line: "{{ item.ip }} {{ item.hostname }}"
+    insertafter: EOF
+  loop: "{{ kubernetes_nodes }}"
+
+- name: "Install Docker on All Nodes"
+  ansible.builtin.apt:
+    name:
+      - apt-transport-https
+      - ca-certificates
+      - curl
+      - software-properties-common
+    state: present
+    update_cache: yes
+
+- name: Add Docker GPG key
+  ansible.builtin.apt_key:
+    url: https://download.docker.com/linux/ubuntu/gpg
+    state: present
+
+- name: Add Docker repository
+  ansible.builtin.apt_repository:
+    repo: "deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable"
+    state: present
+    filename: docker
+
+- name: Install Docker engine
+  ansible.builtin.apt:
+    name: docker-ce
+    state: present
+    update_cache: yes
+
+- name: "verify Docker installation"
+  ansible.builtin.command:
+    cmd: docker --version
+  changed_when: false
+
+- name: "Make sure Docker is running"
+  ansible.builtin.service:
+    name: docker
+    state: started
+    enabled: yes
+
+- name: "Install Kubernetes (Kubeadm, Kubelet, Kubectl) on All Nodes"
+  ansible.builtin.apt:
+    name:
+      - apt-transport-https
+      - ca-certificates
+      - curl
+      - gnupg
+    state: present
+    update_cache: yes
+
+- name: Ensure apt keyrings directory exists
+  ansible.builtin.file:
+    path: /etc/apt/keyrings
+    state: directory
+    mode: "0755"
+
+- name: Download Kubernetes repository key
+  ansible.builtin.get_url:
+    url: "https://pkgs.k8s.io/core:/stable:/{{ kubernetes_repo_version }}/deb/Release.key"
+    dest: /etc/apt/keyrings/kubernetes-apt-keyring.asc
+    mode: "0644"
+
+- name: Convert Kubernetes repository key to gpg keyring
+  ansible.builtin.command:
+    cmd: gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg /etc/apt/keyrings/kubernetes-apt-keyring.asc
+    creates: /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+
+- name: Ensure Kubernetes keyring is readable by apt
+  ansible.builtin.file:
+    path: /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+    state: file
+    mode: "0644"
+
+- name: Remove legacy Kubernetes apt repository
+  ansible.builtin.apt_repository:
+    repo: "deb https://apt.kubernetes.io/ kubernetes-xenial main"
+    state: absent
+    filename: kubernetes
+
+- name: Add Kubernetes apt repository
+  ansible.builtin.apt_repository:
+    repo: "deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/{{ kubernetes_repo_version }}/deb/ /"
+    state: present
+    filename: kubernetes
+
+- name: Install kubelet, kubeadm, kubectl
+  ansible.builtin.apt:
+    name:
+      - kubelet
+      - kubeadm
+      - kubectl
+    state: present
+    update_cache: yes
+
+- name: Hold Kubernetes packages
+  ansible.builtin.dpkg_selections:
+    name: "{{ item }}"
+    selection: hold
+  loop:
+    - kubelet
+    - kubeadm
+    - kubectl
+
+- name: Verify kubeadm installation
+  ansible.builtin.command:
+    cmd: kubeadm version
+  changed_when: false
+
+- name: Verify kubelet installation
+  ansible.builtin.command:
+    cmd: kubelet --version
+  changed_when: false
+
+- name: Verify kubectl installation
+  ansible.builtin.command:
+    cmd: kubectl version --client
+  changed_when: false
+
+- name: "Enable and start kubelet service"
+  ansible.builtin.service:
+    name: kubelet
+    state: started
+    enabled: yes
+    

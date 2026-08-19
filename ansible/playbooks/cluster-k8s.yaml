@@ -1,0 +1,6 @@
+---
+- name: "Pre-configuring Kubernetes Cluster"
+  hosts: all
+  become: yes
+  roles:
+    - common
