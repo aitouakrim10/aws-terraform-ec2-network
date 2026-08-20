@@ -1,0 +1,11 @@
+---
+- name: "Read kubeadm join command from master"
+  ansible.builtin.slurp:
+    src: /tmp/kubeadm_join_cmd.sh
+  delegate_to: "{{ groups['masters'][0] }}"
+  register: kubeadm_join_cmd_raw
+
+- name: "Join worker node to cluster"
+  ansible.builtin.command:
+    cmd: "{{ kubeadm_join_cmd_raw.content | b64decode | trim }}"
+    creates: /etc/kubernetes/kubelet.conf

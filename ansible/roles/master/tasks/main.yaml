@@ -1,0 +1,24 @@
+---
+- name: "Initialize the Kubernetes Master Node"
+  ansible.builtin.command:
+    cmd: kubeadm init --apiserver-advertise-address={{ master.ip }} --pod-network-cidr={{ pod_network_cidr }}
+    
+- name: "Configure kubectl for the Master Node"
+  ansible.builtin.shell: |
+    mkdir -p $HOME/.kube
+    cp /etc/kubernetes/admin.conf $HOME/.kube/config
+    chown $(id -u):$(id -g) $HOME/.kube/config
+  args:
+    executable: /bin/bash
+
+- name: "Install Pod Network (Flannel)"
+  ansible.builtin.shell: |
+    kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
+  args:
+    executable: /bin/bash
+
+- name: "Save the Join Command"
+  ansible.builtin.shell: |
+    kubeadm token create --print-join-command > /tmp/kubeadm_join_cmd.sh
+  args:
+    executable: /bin/bash

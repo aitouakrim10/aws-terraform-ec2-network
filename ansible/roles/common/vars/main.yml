@@ -4,15 +4,15 @@ kubernetes_repo_version: "v1.36"
 kubernetes_nodes:
   - name: master
     hostname: master
-    ip: "13.60.36.207"
+    ip: "16.16.187.234"
     role: control_plane
 
   - name: worker1
     hostname: worker1
-    ip: "16.171.140.132"
+    ip: "13.60.72.156"
     role: worker
 
   - name: worker2
     hostname: worker2
-    ip: "13.51.146.207"
+    ip: "51.20.134.160"
     role: worker

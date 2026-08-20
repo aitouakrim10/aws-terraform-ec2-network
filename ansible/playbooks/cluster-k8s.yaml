@@ -4,9 +4,15 @@
   become: yes
   roles:
     - common
-
-- name: "Set Up Kubernetes Master Node"
+    
+- name: "Setting up Kubernetes Master Node"
   hosts: masters
   become: yes
   roles:
     - master
+
+- name: "Joining Kubernetes Worker Nodes"
+  hosts: nodes
+  become: yes
+  roles:
+    - worker
