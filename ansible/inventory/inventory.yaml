@@ -4,16 +4,16 @@ all:
     masters:
       hosts:
         master:
-          ansible_host: "13.60.36.207"
+          ansible_host: "16.16.187.234"
           ansible_user: "ubuntu"
           ansible_ssh_private_key_file: "/home/aitouaka/DevOps/projet/aws/keys/nb-key-pair.pem"
     nodes:
       hosts:
         worker1:
-          ansible_host: "16.171.140.132"
+          ansible_host: "13.60.72.156"
           ansible_user: "ubuntu"
           ansible_ssh_private_key_file: "/home/aitouaka/DevOps/projet/aws/keys/nb-key-pair.pem"
         worker2:
-          ansible_host: "13.51.146.207"
+          ansible_host: "51.20.134.160"
           ansible_user: "ubuntu"
           ansible_ssh_private_key_file: "/home/aitouaka/DevOps/projet/aws/keys/nb-key-pair.pem"
