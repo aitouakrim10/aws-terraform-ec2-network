@@ -186,8 +186,3 @@ eog ../images/graph.png
 - For production, prefer restricting ingress by a specific CIDR or your office/public IP.
 - If ping is not working, check the EC2 security group and the instance firewall configuration.
 
-## Useful links
-
-- Terraform AWS provider docs
-- AWS EC2 docs
-- AWS security group documentation
